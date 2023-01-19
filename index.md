@@ -1,7 +1,3 @@
-Hello and welcome to this blog. Edit the `index.md` file to change this content. All pages on the blog, including this one, use [Markdown](https://guides.github.com/features/mastering-markdown/). You can include images:
+![](https://avatars.githubusercontent.com/u/36760800?v=4)
 
-![Image of fast.ai logo](images/logo.png)
-
-## This is a title
-
-And you can include links, like this [link to fast.ai](https://www.fast.ai). Posts will appear after this file. 
+ML Engineer. Passionate about CV and NLP, and open-source developer. Also, baller and MMA enjoyer.
