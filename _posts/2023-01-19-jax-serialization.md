@@ -1,75 +1,92 @@
 # JAX model params serialization made easy!
 
-Here's the table of contents:
-
 1. TOC
 {:toc}
 
-## Basic setup
+## Introduction
 
-Jekyll requires blog post files to be named according to the following format:
+From [`google/jax`](https://github.com/google/jax), _"JAX is Autograd and XLA, brought together
+for high-performance machine learning research."_.
 
-`YEAR-MONTH-DAY-filename.md`
+JAX tensors formatted as pytrees can be loaded using `numpy` and `pickle` to store the tree structure
+in `pickle` and the tensors using `numpy`, but there's no unified way of doing so. Also, `pickle` is not
+safe, that's why, among other multiple reasons, HuggingFace created [`huggingface/safetensors`](https://github.com/huggingface/safetensors).
 
-Where `YEAR` is a four-digit number, `MONTH` and `DAY` are both two-digit numbers, and `filename` is whatever file name you choose, to remind yourself what this post is about. `.md` is the file extension for markdown files.
+The only JAX framework that contains a built-in serialization format is [`google/flax`](https://github.com/google/flax) which uses [`MessagePack`](https://flax.readthedocs.io/en/latest/api_reference/flax.serialization.html#serialization-with-messagepack)
+and [`State Dict`](https://flax.readthedocs.io/en/latest/api_reference/flax.serialization.html#state-dicts).
 
-The first line of the file should start with a single hash character, then a space, then your title. This is how you create a "*level 1 heading*" in markdown. Then you can create level 2, 3, etc headings as you wish but repeating the hash character, such as you see in the line `## File names` above.
+But it also contains some drawbacks such as no layout control to enable lazy loading, which is useful in
+distributed environments.
 
-## Basic formatting
+So on, `safetensors` is a complete and unified format for storing tensors for `torch`, `jax`/`flax`,
+and `tensorflow`. See the table below from [`huggingface/safetensors`](https://github.com/huggingface/safetensors/blob/main/README.md):
 
-You can use *italics*, **bold**, `code font text`, and create [links](https://www.markdownguide.org/cheat-sheet/). Here's a footnote [^1]. Here's a horizontal rule:
+| Format                  | Safe | Zero-copy | Lazy loading | No file size limit | Layout control | Flexibility | Bfloat16
+| ----------------------- | --- | --- | --- | --- | --- | --- | --- |
+| pickle (PyTorch)        | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| H5 (Tensorflow)         | ✅ | ❌ | ✅ | ✅ | ~ | ~ | ❌ |
+| SavedModel (Tensorflow) | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
+| MsgPack (flax)          | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ |
+| Protobuf (ONNX)         | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Cap'n'Proto             | ✅ | ✅ | ~ | ✅ | ✅ | ~ | ❌ |
+| Arrow                   | ? | ? | ? | ? | ? | ? | ❌ |
+| Numpy (npy,npz)         | ✅ | ? | ? | ❌ | ✅ | ❌ | ❌ |
+| SafeTensors             | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
 
----
+That's the main reason why I decided to create [`safejax`](https://github.com/alvarobartt/safejax), to
+easily provide a Python package to serialize and deserialize JAX (Flax, Haiku, and Objax) model params
+using `safetensors` as the tensor-storage format.
 
-## Lists
+## Why `safejax`?
 
-Here's a list:
+`jax` uses `pytrees` to store the model parameters in memory, so
+it's a dictionary-like class containing nested `jnp.DeviceArray` tensors.
 
-- item 1
-- item 2
+`dm-haiku` uses a custom dictionary formatted as `<level_1>/~/<level_2>`, where the
+levels are the ones that define the tree structure and `/~/` is the separator between those
+e.g. `res_net50/~/intial_conv`, and that key does not contain a `jnp.DeviceArray`, but a 
+dictionary with key-value pairs e.g. for both weights as `w` and biases as `b`.
 
-And a numbered list:
+`objax` defines a custom dictionary-like class named `VarCollection` that contains
+some variables inheriting from `BaseVar` which is another custom `objax` type.
 
-1. item 1
-1. item 2
+`flax` defines a dictionary-like class named `FrozenDict` that is used to
+store the tensors in memory, it can be dumped either into `bytes` in `MessagePack`
+format or as a `state_dict`.
 
-## Boxes and stuff
+So the motivation to create `safejax` is to easily provide a way to serialize `FrozenDict`, `VarCollection`,
+and `Dict[str, jnp.DeviceArray]` using `safetensors` as the tensor storage format instead of 
+`pickle`, as well as to provide a common and easy way to serialize and deserialize.
 
-> This is a quotation
+## Usage
 
-{% include alert.html text="You can include alert boxes" %}
-
-...and...
-
-{% include info.html text="You can include info boxes" %}
-
-## Images
-
-![]()
-
-## Code
-
-General preformatted text:
-
-    # Do a thing
-    do_thing()
-
-Python code and output:
+* Convert `params` to `bytes`:
 
 ```python
-# Prints '2'
-print(1+1)
+from safejax import serialize, deserialize
+
+encoded_bytes = serialize(params)
+decoded_params = deserialize(encoded_bytes)
 ```
 
-    2
+* Convert `params` to `bytes` in `params.safetensors` file
 
-## Tables
+```python
+from safejax import serialize, deserialize
 
-| Column 1 | Column 2 |
-|-|-|
-| A thing | Another thing |
+encoded_bytes = serialize(params, filename="./params.safetensors")
+decoded_params = deserialize("./params.safetensors")
+```
 
-## Footnotes
+There are also some framework-specific functions:
 
-[^1]: This is the footnote.
+* `from safejax.flax import serialize, deserialize`
+* `from safejax.objax import serialize, deserialize`
+* `from safejax.haiku import serialize, deserialize`
 
+Those functions handle the specific cases where the input is not at `Dict[str, jnp.DeviceArray]`, 
+but a `VarCollection` in `objax` or a `FrozenDict` in `flax`.
+
+## More information
+
+More information can be found at [`alvarobartt/safejax`](https://github.com/alvarobartt/safejax).
