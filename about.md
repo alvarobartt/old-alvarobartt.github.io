@@ -1,6 +1,6 @@
 # about
 
-![](https://avatars.githubusercontent.com/u/36760800?v=4)
+<img src="https://avatars.githubusercontent.com/u/36760800?v=4" style="border-radius: 50%" width="50%"/>
 
 Hi, I'm Alvaro Bartolome (@alvarobartt online) a Machine Learning Engineer currently working 
 for [Frontiers](https://www.frontiersin.org), where I work with both NLP and CV, as well as

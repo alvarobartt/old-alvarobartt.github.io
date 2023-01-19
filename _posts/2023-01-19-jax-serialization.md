@@ -1,4 +1,4 @@
-# This is the title
+# JAX model params serialization made easy!
 
 Here's the table of contents:
 
