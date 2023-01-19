@@ -34,7 +34,7 @@ of `investpy`, that I developed when the former package was blocked, and I got i
 but later it was also blocked. AFAIK it still works if you send a few requests a day, otherwise, you'll get
 blacklisted and blocked from sending requests to Investing.com.
 
-* [`trendet`](https://github.com/alvarobartt/) is a simple Python package to detect trends in time
+* [`trendet`](https://github.com/alvarobartt/trendet) is a simple Python package to detect trends in time
 series data. It works with `pandas` as well as with `investpy` as it's directly integrated with it. Note
 that now it does not work with `investpy` anymore due to the blocking from Investing.com, but it does still
 work with any time series in a `pandas.DataFrame`.
