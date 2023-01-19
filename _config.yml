@@ -14,6 +14,9 @@ github_username: alvarobartt
 email: alvarobartt@yahoo.com
 twitter_username: alvarobartt
 
+# LinkedIn is optional too:
+linkedin_username: alvarobartt
+
 # Set this to true to get LaTeX math equation support
 use_math: false
 
