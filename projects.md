@@ -6,10 +6,10 @@
 (Flax, Haiku, or Objax) model params using `safetensors` as the tensor-storage format.
 
 * [`serving-pytorch-models`](https://github.com/alvarobartt/serving-pytorch-models) is a detailed guide
-on how to setup and deploy TorchServe to expose an inference API for a pre-trained PyTorch CNN.
+on how to set up and deploy TorchServe to expose an inference API for a pre-trained PyTorch CNN.
 
 * [`serving-tensorflow-models`](https://github.com/alvarobartt/serving-tensorflow-models) is a detailed
-guide on how to setup and deploy TensorFlow Serving to expose an inference API for a pre-trained TensorFlow
+guide on how to set up and deploy TensorFlow Serving to expose an inference API for a pre-trained TensorFlow
 CNN.
 
 * [`tensorflow-serving-streamlit`](https://github.com/alvarobartt/tensorflow-serving-streamlit) is a `streamlit`
@@ -37,14 +37,14 @@ blacklisted and blocked from sending requests to Investing.com.
 * [`trendet`](https://github.com/alvarobartt/trendet) is a simple Python package to detect trends in time
 series data. It works with `pandas` as well as with `investpy` as it's directly integrated with it. Note
 that now it does not work with `investpy` anymore due to the blocking from Investing.com, but it does still
-work with any time series in a `pandas.DataFrame`.
+work with any time series in `pandas.DataFrame`.
 
 ## templates
 
-* [`python-package-template`](https://github.com/alvarobartt/python-package-template) is Python package
+* [`python-package-template`](https://github.com/alvarobartt/python-package-template) is a Python package
 template using `pyproject.toml`, `hatch`, `pre-commit`, `black`, `ruff`, and `mkdocs`.
 
 ## others
 
-* [`wandbfsspec`](https://github.com/alvarobartt/wandbfsspec) is an `fsspec` interface for Weights &
+* [`wandbfsspec`](https://github.com/alvarobartt/wandbfsspec) is a `fsspec` interface for Weights &
 Biases (wandb) files and artifacts.
